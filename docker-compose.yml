@@ -1,0 +1,40 @@
+version: '3.9'
+
+x-default_environment: &rails_app_environment
+  EDITOR: vim
+  RAILS_DB_USER: mysql
+  RAILS_DB_PASSWORD: password
+  RAILS_DB_HOST: db
+x-rails_app_volumes: &rails_app_volumes .:/app_BackEnd:cached
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
+    command: --default-authentication-plugin=mysql_native_password
+
+    stdin_open: true
+    tty: true
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3001 -b '0.0.0.0'"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    environment:
+      <<: *rails_app_environment
+      FRONTEND_ORIGIN: http://localhost:3000
+    stdin_open: true
+    tty: true
+volumes:
+  mysql-data:
+    driver: local
