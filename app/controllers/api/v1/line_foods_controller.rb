@@ -1,19 +1,18 @@
 module Api
   module V1
     class LineFoodsController < ApplicationController
-      before_action :set_food, only: [:create, :replace]
-
+      before_action :set_food, only: %i[create replace]
       def index
         line_foods = LineFood.active.all
         if line_foods.exists?
           render json: {
-            line_food_ids: line_foods.map { |line_food| line_food.id},
-            restaurant: line_foods[0].restaurant
+            line_food_ids: line_foods.map { |line_food| line_food.id },
+            restaurant: line_foods[0].restaurant,
             count: line_foods.sum { |line_food| line_food[:count] },
-            amount: line_foods.sum { |line_food| line_food.total_amount }
-          }
+            amount: line_foods.sum { |line_food| line_food.total_amount },
+          }, status: :ok
         else
-          render json {}, status: :no_content
+          render json: {}, status: :no_content
         end
       end
 
@@ -21,7 +20,7 @@ module Api
         if LineFood.active.other_restaurant(@ordered_food.restaurant.id).exists?
           return render json: {
             existing_restaurant: LineFood.other_restaurant(@ordered_food.restaurant.id).first.restaurant.name,
-            new_restaurnt: Food.find(params[:food_id]).restaurant.name,
+            new_restaurant: Food.find(params[:food_id]).restaurant.name,
           }, status: :not_acceptable
         end
 
@@ -30,11 +29,10 @@ module Api
         if @line_food.save
           render json: {
             line_food: @line_food
-          },status: :created
+          }, status: :created
         else
           render json: {}, status: :internal_server_error
         end
-
       end
 
       def replace
@@ -54,6 +52,7 @@ module Api
       end
 
       private
+
       def set_food
         @ordered_food = Food.find(params[:food_id])
       end

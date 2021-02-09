@@ -6,7 +6,7 @@ class CreateLineFoods < ActiveRecord::Migration[6.1]
       t.references :order, foreign_key: true
       t.integer :count, null: false, default: 0
       t.boolean :active, null: false, default: false
-
+      
       t.timestamps
     end
   end

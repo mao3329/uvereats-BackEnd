@@ -9,6 +9,6 @@ module Api
           foods: foods
         }, status: :ok
       end
-    end 
+    end
   end
 end
